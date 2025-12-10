@@ -1,0 +1,50 @@
+// server.js
+const express = require("express");
+const bodyParser = require("body-parser");
+const SerpApi = require("google-search-results-nodejs");
+const cors = require('cors');
+const app = express();
+const port = process.env.PORT || 3000;
+app.use(cors());
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(express.static("public"));  // for serving index.html + static files
+
+const search = new SerpApi.GoogleSearch("a5c665f7ecfa2d180809bcd936f75ae4bc34cd0a7dc49cf74409860d58fd5861");
+
+app.post("/getAppInfo", async (req, res) => {
+  const { appId } = req.body;
+  if (!appId) {
+    res.status(400).json({ error: "appId is required" });
+    return;
+  }
+
+  const params = {
+    engine: "google_play_product",
+    store: "apps",
+    product_id: appId,
+    gl: "us",
+    hl: "en"
+  };
+
+  try {
+    const json = await new Promise((resolve, reject) => {
+      search.json(params, data => resolve(data));
+    });
+
+    // Extract relevant fields
+    const info = {
+      title: json
+    };
+
+    res.json({ success: true, data: info });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch data" });
+  }
+});
+
+app.listen(port, () => {
+  console.log(`Server listening at http://localhost:${port}`);
+});
