@@ -12,7 +12,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(express.static("public")); // for serving index.html + static files
 
-const search = new SerpApi.GoogleSearch("a5c665f7ecfa2d180809bcd936f75ae4bc34cd0a7dc49cf74409860d58fd5861"); // Replace with your SerpApi key
+const search = new SerpApi.GoogleSearch(process.env.SERP_API_KEY); // Replace with your SerpApi key
 
 app.post("/getAppInfo", async (req, res) => {
   const { appId } = req.body;
